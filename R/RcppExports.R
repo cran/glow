@@ -17,3 +17,7 @@ mollweide_projection <- function(latitude, longitude, meridian) {
     .Call(`_glow_mollweide_projection`, latitude, longitude, meridian)
 }
 
+clifford_attractor <- function(n_iter, A = 1.886, B = -2.357, C = -0.328, D = 0.918, x0 = 0.1, y0 = 0) {
+    .Call(`_glow_clifford_attractor`, n_iter, A, B, C, D, x0, y0)
+}
+

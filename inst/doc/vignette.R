@@ -1,3 +1,50 @@
+## ---- setup, echo=FALSE-------------------------------------------------------
+IS_GITHUB <- Sys.getenv("IS_GITHUB") != ""
+
+## ----results='asis', echo=FALSE, eval=IS_GITHUB-------------------------------
+#  cat('
+#  [![R-CMD-check](https://github.com/traversc/glow/workflows/R-CMD-check/badge.svg)](https://github.com/traversc/glow/actions)
+#  [![CRAN-Status-Badge](http://www.r-pkg.org/badges/version/glow)](https://cran.r-project.org/package=glow)
+#  [![CRAN-Downloads-Badge](https://cranlogs.r-pkg.org/badges/glow)](https://cran.r-project.org/package=glow)
+#  [![CRAN-Downloads-Total-Badge](https://cranlogs.r-pkg.org/badges/grand-total/glow)](https://cran.r-project.org/package=glow)
+#  ')
+
+## ----results='asis', echo=FALSE-----------------------------------------------
+output <- '
+<center>
+|Methylation 450K Volcano Plot |Diamonds |
+|-|-|
+|![](vignettes/volcano_white_bg.png "volcano_white_bg.png"){height=240px} |![](vignettes/diamonds.png "diamonds.png"){height=240px} |
+
+| Milky Way Galaxy (6.1 million stars) |
+|-|
+| ![](vignettes/GAIA_galaxy_pseudocolor.png "GAIA_galaxy_pseudocolor.png"){height=300px} |
+
+| OpenStreetMap GPS traces (2.8 billion points) |
+|-|
+| ![](vignettes/gps_trace_8K.png "gps_trace_8K.png"){height=300px} |
+
+| Clifford strange attractor (1 billion points) |
+|-|
+| ![](vignettes/clifford_distance_inverse_viridis_50.png "clifford_distance_inverse_viridis_50.png"){height=300px} |
+
+| Airline Dataset (145 million points) | Glow-y Spiral |
+|-|-|
+| ![](vignettes/airline_mt.png "airline_mt.png"){height=240px} | ![](vignettes/glow_spiral2.png "glow_spiral2.png"){height=240px} |
+
+| U.S. Coronavirus Cases (2021) |
+|-|
+| ![](vignettes/US_coronavirus_2021.png "US_coronavirus_2021.png"){height=300px} |
+
+</center>
+'
+
+if(IS_GITHUB) {
+  cat(output)
+} else {
+  cat(gsub("vignettes/", "", output))
+}
+
 ## ----eval=FALSE---------------------------------------------------------------
 #  remotes::install_github("traversc/glow")
 
@@ -6,15 +53,72 @@
 #  library(ggplot2)
 #  library(viridisLite) # Magma color scale
 #  
-#  # Load the dataset
+#  # Number of threads
+#  nt <- 4
+#  
 #  data(diamonds)
-#  gm <- GlowMapper$new(xdim=2000, ydim = 2000, blend_mode = "screen", nthreads=nt)
+#  gm <- GlowMapper$new(xdim=800, ydim = 640, blend_mode = "screen", nthreads=nt)
 #  gm$map(x=diamonds$carat, y=diamonds$price, intensity=1, radius = .1)
 #  pd <- gm$output_dataframe(saturation = 1)
+#  
+#  # Dark color theme
 #  ggplot() +
-#    geom_raster(data = pd, aes(x = pd$x, y = pd$y, fill = pd$value), show.legend = F) +
+#    geom_raster(data = pd, aes(x = pd$x, y = pd$y, fill = pd$value), show.legend = FALSE) +
 #    scale_fill_gradientn(colors = additive_alpha(magma(12))) +
 #    coord_fixed(gm$aspect(), xlim = gm$xlim(), ylim = gm$ylim()) +
 #    labs(x = "carat", y = "price") +
-#    theme_night(bgcolor = magma(1))
+#    theme_night(bgcolor = magma(12)[1])
+
+## ----results='asis', echo=FALSE-----------------------------------------------
+if(IS_GITHUB) {
+  cat('![](vignettes/diamonds_vignette_dark.png "diamonds_vignette_dark.png"){height=240px}')
+} else {
+  cat('![](diamonds_vignette_dark.png "diamonds_vignette_dark.png"){height=240px}')
+}
+
+## ----eval=FALSE---------------------------------------------------------------
+#  # light color theme
+#  light_colors <- light_heat_colors(144)
+#  ggplot() +
+#    geom_raster(data = pd, aes(x = pd$x, y = pd$y, fill = pd$value), show.legend = FALSE) +
+#    scale_fill_gradientn(colors = additive_alpha(light_colors)) +
+#    coord_fixed(gm$aspect(), xlim = gm$xlim(), ylim = gm$ylim()) +
+#    labs(x = "carat", y = "price") +
+#    theme_bw(base_size = 14)
+
+## ----results='asis', echo=FALSE-----------------------------------------------
+if(IS_GITHUB) {
+  cat('![](vignettes/diamonds_vignette_light.png "diamonds_vignette_light.png"){height=240px}')
+} else {
+  cat('![](diamonds_vignette_light.png "diamonds_vignette_light.png"){height=240px}')
+}
+
+## ----eval=FALSE---------------------------------------------------------------
+#  library(EBImage)
+#  
+#  # Generate data
+#  cliff_points <- clifford_attractor(1e6, 1.886,-2.357,-0.328, 0.918, 0.1, 0)
+#  color_pal <- circular_palette(n=144, pal_function=rainbow)
+#  cliff_points$color <- map_colors(color_pal, cliff_points$angle, min_limit=-pi, max_limit=pi)
+#  
+#  # Create raster
+#  gm <- GlowMapper4$new(xdim=480, ydim = 270, blend_mode = "additive", nthreads=4)
+#  gm$map(x=cliff_points$x, y=cliff_points$y, radius=0.05, color=cliff_points$color)
+#  pd <- gm$output_raw(saturation = 1)
+#  
+#  # Output raster with EBImage
+#  image_array <- array(1, dim=c(480, 270, 3))
+#  image_array[,,1] <- pd[[1]]*pd[[4]]
+#  image_array[,,2] <- pd[[2]]*pd[[4]]
+#  image_array[,,3] <- pd[[3]]*pd[[4]]
+#  img <- EBImage::Image(image_array, colormode='Color')
+#  plot(img)
+#  writeImage(img, "plots/clifford_vignette.png")
+
+## ----results='asis', echo=FALSE-----------------------------------------------
+if(IS_GITHUB) {
+  cat('![](vignettes/clifford_vignette.png "clifford_vignette.png"){height=240px}')
+} else {
+  cat('![](clifford_vignette.png "clifford_vignette.png"){height=240px}')
+}
 

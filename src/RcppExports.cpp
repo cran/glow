@@ -6,6 +6,11 @@
 
 using namespace Rcpp;
 
+#ifdef RCPP_USE_GLOBAL_ROSTREAM
+Rcpp::Rostream<true>&  Rcpp::Rcout = Rcpp::Rcpp_cout_get();
+Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
+#endif
+
 // is_tbb
 bool is_tbb();
 RcppExport SEXP _glow_is_tbb() {
@@ -75,12 +80,29 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// clifford_attractor
+DataFrame clifford_attractor(size_t n_iter, double A, double B, double C, double D, double x0, double y0);
+RcppExport SEXP _glow_clifford_attractor(SEXP n_iterSEXP, SEXP ASEXP, SEXP BSEXP, SEXP CSEXP, SEXP DSEXP, SEXP x0SEXP, SEXP y0SEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::traits::input_parameter< size_t >::type n_iter(n_iterSEXP);
+    Rcpp::traits::input_parameter< double >::type A(ASEXP);
+    Rcpp::traits::input_parameter< double >::type B(BSEXP);
+    Rcpp::traits::input_parameter< double >::type C(CSEXP);
+    Rcpp::traits::input_parameter< double >::type D(DSEXP);
+    Rcpp::traits::input_parameter< double >::type x0(x0SEXP);
+    Rcpp::traits::input_parameter< double >::type y0(y0SEXP);
+    rcpp_result_gen = Rcpp::wrap(clifford_attractor(n_iter, A, B, C, D, x0, y0));
+    return rcpp_result_gen;
+END_RCPP
+}
 
 static const R_CallMethodDef CallEntries[] = {
     {"_glow_is_tbb", (DL_FUNC) &_glow_is_tbb, 0},
     {"_glow_c_map_glow", (DL_FUNC) &_glow_c_map_glow, 15},
     {"_glow_c_map_light", (DL_FUNC) &_glow_c_map_light, 15},
     {"_glow_mollweide_projection", (DL_FUNC) &_glow_mollweide_projection, 3},
+    {"_glow_clifford_attractor", (DL_FUNC) &_glow_clifford_attractor, 7},
     {NULL, NULL, 0}
 };
 
