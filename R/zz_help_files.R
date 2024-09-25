@@ -35,6 +35,25 @@ NULL
 #' @name light_heat_colors
 NULL
 
+# light_cool_colors ###################################################
+
+#' light_cool_colors
+#' 
+#' A light color palette.
+#' 
+#' @usage light_cool_colors(...)
+#' @param ... Arguments passed to the function returned by `colorRampPalette`
+#' @return A light color palette function
+#' @details A simple light color palette gradient from dark blue to light blue 
+#' intended for a heatmap with a white or light color background. 
+#'  
+#'  Equivalent to `colorRampPalette(c("#1133AA", "#CCFFFF"))(...)`.
+#' @examples
+#' light_colors <- light_cool_colors(144)
+#' plot(1:144, 1:144, col = light_colors, pch = 19)
+#' @name light_cool_colors
+NULL
+
 # circular_palette ###################################################
 
 #' circular_palette
@@ -86,6 +105,54 @@ NULL
 #'   scale_fill_identity() + 
 #'   theme_night()
 #' @name map_colors
+NULL
+
+# relxy ###################################################
+
+#' relxy
+#' 
+#' Helper functions for specifying the `radius` parameter in `GlowMapper$map` and similar. 
+#' 
+#' @usage relx(r, mode = "data")
+#' @usage rely(r, mode = "data")
+#' @param r Radius of point data relative to X or Y range of the plot, a value between 0 and 1.
+#' @param mode One of "data" (default) or "plot". Whether to use a radius relative to the extent 
+#' of the data range or the plot range (which could have been adjusted manually).
+#' @return A class structure for input to `GlowMapper$map`
+#' @details 
+#' Helper functions for specifying the `radius` parameter relative to the range of the plot as a proportion. 
+#' I.e., a value of 0.02 corresponds to 2% of the plot. 
+#' @examples
+#' 
+#' gm <- GlowMapper$new(xdim=480, ydim=240, blend_mode = "additive", nthreads=4)
+#' 
+# Relative radius to x-range
+#' gm$map(x=1:10, y=runif(10)*100, radius=relx(0.01), intensity = 1)
+#' pd <- gm$output_dataframe(saturation = 1)
+#' 
+#' ggplot() +
+#'   geom_raster(data = pd, aes(x = x, y = y, fill = value), show.legend=FALSE) +
+#'   coord_fixed(gm$aspect(), xlim = gm$xlim(), ylim = gm$ylim()) +
+#'   scale_fill_gradientn(colors = additive_alpha(viridisLite::viridis(12))) +
+#'   theme_night()
+#' 
+#' # Relative radius to y-range
+#' gm$map(x=1:10, y=runif(10)*100, radius=rely(0.01))
+#' pd <- gm$output_dataframe(saturation = 1)
+#' ggplot() +
+#'   geom_raster(data = pd, aes(x = x, y = y, fill = value), show.legend=FALSE) +
+#'   coord_fixed(gm$aspect(), xlim = gm$xlim(), ylim = gm$ylim()) +
+#'   scale_fill_gradientn(colors = additive_alpha(viridisLite::viridis(12))) +
+#'   theme_night()
+#' @name relxy
+NULL
+
+#' @aliases relx
+#' @name relxy
+NULL
+
+#' @aliases rely
+#' @name relxy
 NULL
 
 

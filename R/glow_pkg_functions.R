@@ -18,6 +18,10 @@ light_heat_colors <- function(...) {
   colorRampPalette(c("red", "darkorange2", "darkgoldenrod1", "gold1", "yellow2"))(...)
 }
 
+light_cool_colors <- function(...) {
+  colorRampPalette(c("#1133AA", "#CCFFFF"))(...)
+}
+
 additive_alpha <- function(colors) {
   s <- seq(2, length(colors))
   x <- t(col2rgb(colors, alpha=F))/255
@@ -44,6 +48,42 @@ map_colors <- function(colors, x, min_limit=NULL, max_limit=NULL) {
   colors[findInterval(x, seq(min_limit, max_limit, length.out = length(colors) + 1), all.inside = TRUE)]
 }
 
+relx <- function(r, mode = "data") {
+  structure(r, class = "relx", mode = mode)
+}
+
+rely <- function(r, mode = "data") {
+  structure(r, class = "rely", mode = mode)
+}
+
+# internal helper function
+calculate_radius <- function(radius, xdiff, ydiff, self) {
+    plot_x_diff <- self$xmax - self$xmin
+    plot_y_diff <- self$ymax - self$ymin
+    if(inherits(radius, "relx")) {
+      rel_mode <- attr(radius, "mode")
+      attributes(radius) <- NULL
+      if(rel_mode == "data") {
+        radius <- xdiff * radius / self$x_aspect_ratio
+      } else if(rel_mode == "plot") {
+        radius <- plot_x_diff * radius / self$x_aspect_ratio
+      } else {
+        stop("relx mode must be 'data' or 'plot'")
+      }
+    } else if(inherits(radius, "rely")) {
+      rel_mode <- attr(radius, "mode")
+      attributes(radius) <- NULL
+      if(rel_mode == "data") {
+        radius <- ydiff * radius / self$y_aspect_ratio
+      } else if(rel_mode == "plot") {
+        radius <- plot_y_diff * radius / self$y_aspect_ratio
+      } else {
+        stop("rely mode must be 'data' or 'plot'")
+      }
+    } else {
+      radius
+    }
+}
 
 # GlowMapper ###################################
 GlowMapper <- R6Class("GlowMapper", list(
@@ -93,8 +133,6 @@ GlowMapper <- R6Class("GlowMapper", list(
     stopifnot(is.numeric(xlimits), length(xlimits) == 2)
     stopifnot(is.numeric(ylimits), length(ylimits) == 2)
     
-    self$plot_data <- data.frame(x, y, intensity, radius, distance_exponent)
-    
     xdiff <- diff(range(x))
     ydiff <- diff(range(y))
     default_margin <- 0.05
@@ -108,6 +146,10 @@ GlowMapper <- R6Class("GlowMapper", list(
     
     self$x_aspect_ratio <- max(xincrement / yincrement,1)
     self$y_aspect_ratio <- max(yincrement / xincrement,1)
+    
+    radius <- calculate_radius(radius, xdiff, ydiff, self)
+    
+    self$plot_data <- data.frame(x, y, intensity, radius, distance_exponent)
     
     out <- c_map_glow(self$plot_data$x/self$x_aspect_ratio, 
                       self$plot_data$y/self$y_aspect_ratio, 
@@ -240,9 +282,7 @@ GlowMapper4 <- R6Class("GlowMapper4", list(
     
     stopifnot(is.numeric(xlimits), length(xlimits) == 2)
     stopifnot(is.numeric(ylimits), length(ylimits) == 2)
-    
-    self$plot_data <- data.frame(x, y, r,g,b, radius, distance_exponent)
-    
+
     default_margin <- 0.05
     xdiff <- diff(range(x))
     ydiff <- diff(range(y))
@@ -257,6 +297,10 @@ GlowMapper4 <- R6Class("GlowMapper4", list(
     
     self$x_aspect_ratio <- max(xincrement / yincrement,1)
     self$y_aspect_ratio <- max(yincrement / xincrement,1)
+    
+    radius <- calculate_radius(radius, xdiff, ydiff, self)
+    
+    self$plot_data <- data.frame(x, y, r,g,b, radius, distance_exponent)
     
     outR <- c_map_glow(self$plot_data$x/self$x_aspect_ratio, 
                        self$plot_data$y/self$y_aspect_ratio, 
@@ -415,8 +459,6 @@ LightMapper <- R6Class("LightMapper", list(
     stopifnot(is.numeric(xlimits), length(xlimits) == 2)
     stopifnot(is.numeric(ylimits), length(ylimits) == 2)
     
-    self$plot_data <- data.frame(x, y, intensity, radius, falloff_exponent, distance_exponent)
-    
     xdiff <- diff(range(x))
     ydiff <- diff(range(y))
     default_margin <- 0.05
@@ -430,6 +472,10 @@ LightMapper <- R6Class("LightMapper", list(
     
     self$x_aspect_ratio <- max(xincrement / yincrement,1)
     self$y_aspect_ratio <- max(yincrement / xincrement,1)
+    
+    radius <- calculate_radius(radius, xdiff, ydiff, self)
+    
+    self$plot_data <- data.frame(x, y, intensity, radius, falloff_exponent, distance_exponent)
     
     out <- c_map_light(self$plot_data$x/self$x_aspect_ratio, 
                        self$plot_data$y/self$y_aspect_ratio, 
@@ -558,8 +604,6 @@ LightMapper4 <- R6Class("GlowMapper4", list(
     stopifnot(is.numeric(xlimits), length(xlimits) == 2)
     stopifnot(is.numeric(ylimits), length(ylimits) == 2)
     
-    self$plot_data <- data.frame(x, y, r,g,b, radius, distance_exponent, falloff_exponent)
-    
     default_margin <- 0.05
     xdiff <- diff(range(x))
     ydiff <- diff(range(y))
@@ -574,6 +618,10 @@ LightMapper4 <- R6Class("GlowMapper4", list(
     
     self$x_aspect_ratio <- max(xincrement / yincrement,1)
     self$y_aspect_ratio <- max(yincrement / xincrement,1)
+    
+    radius <- calculate_radius(radius, xdiff, ydiff, self)
+    
+    self$plot_data <- data.frame(x, y, r,g,b, radius, distance_exponent, falloff_exponent)
     
     outR <- c_map_light(self$plot_data$x/self$x_aspect_ratio, 
                         self$plot_data$y/self$y_aspect_ratio, 

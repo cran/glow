@@ -1,4 +1,4 @@
-## ---- setup, echo=FALSE-------------------------------------------------------
+## ----setup, echo=FALSE--------------------------------------------------------
 IS_GITHUB <- Sys.getenv("IS_GITHUB") != ""
 
 ## ----results='asis', echo=FALSE, eval=IS_GITHUB-------------------------------
@@ -58,7 +58,9 @@ if(IS_GITHUB) {
 #  
 #  data(diamonds)
 #  gm <- GlowMapper$new(xdim=800, ydim = 640, blend_mode = "screen", nthreads=nt)
-#  gm$map(x=diamonds$carat, y=diamonds$price, intensity=1, radius = .1)
+#  
+#  # relx(0.002) makes point size relative to x-axis, e.g. each point radius is 0.2% of the y-axis
+#  gm$map(x=diamonds$carat, y=diamonds$price, intensity=1, radius = rely(0.002))
 #  pd <- gm$output_dataframe(saturation = 1)
 #  
 #  # Dark color theme
@@ -77,7 +79,7 @@ if(IS_GITHUB) {
 }
 
 ## ----eval=FALSE---------------------------------------------------------------
-#  # light color theme
+#  # light "heat" color theme
 #  light_colors <- light_heat_colors(144)
 #  ggplot() +
 #    geom_raster(data = pd, aes(x = pd$x, y = pd$y, fill = pd$value), show.legend = FALSE) +
@@ -94,6 +96,23 @@ if(IS_GITHUB) {
 }
 
 ## ----eval=FALSE---------------------------------------------------------------
+#  # light "cool" color theme
+#  light_colors <- light_cool_colors(144)
+#  ggplot() +
+#    geom_raster(data = pd, aes(x = pd$x, y = pd$y, fill = pd$value), show.legend = FALSE) +
+#    scale_fill_gradientn(colors = additive_alpha(light_colors)) +
+#    coord_fixed(gm$aspect(), xlim = gm$xlim(), ylim = gm$ylim()) +
+#    labs(x = "carat", y = "price") +
+#    theme_bw(base_size = 14)
+
+## ----results='asis', echo=FALSE-----------------------------------------------
+if(IS_GITHUB) {
+  cat('![](vignettes/diamonds_vignette_cool.png "diamonds_vignette_cool.png"){height=240px}')
+} else {
+  cat('![](diamonds_vignette_cool.png "diamonds_vignette_cool.png"){height=240px}')
+}
+
+## ----eval=FALSE---------------------------------------------------------------
 #  library(EBImage)
 #  
 #  # Generate data
@@ -103,7 +122,7 @@ if(IS_GITHUB) {
 #  
 #  # Create raster
 #  gm <- GlowMapper4$new(xdim=480, ydim = 270, blend_mode = "additive", nthreads=4)
-#  gm$map(x=cliff_points$x, y=cliff_points$y, radius=0.05, color=cliff_points$color)
+#  gm$map(x=cliff_points$x, y=cliff_points$y, radius=1e-3, color=cliff_points$color)
 #  pd <- gm$output_raw(saturation = 1)
 #  
 #  # Output raster with EBImage
